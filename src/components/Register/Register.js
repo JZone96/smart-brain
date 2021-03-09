@@ -20,7 +20,7 @@ class Register extends react.Component {
 		this.setState({password: event.target.value})
 	}
 	onSubmitSignin = () =>{
-		fetch('http://localhost:3000/register', {//fetch will automatically use GET method, but we want POST
+		fetch('https://git.heroku.com/ancient-forest-08678.git/register', {//fetch will automatically use GET method, but we want POST
 			method : 'post',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({
