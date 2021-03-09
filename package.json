@@ -1,6 +1,6 @@
 {
   "name": "facerecognitionbrain",
-  "homepage": "https://jzone96.github.io/smartbrain",
+  "homepage": "https://jzone96.github.io/smart-brain",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,7 +19,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b master -d build",
+    "deploy": "gh-pages -d build",
     "start": "set PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
