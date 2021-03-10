@@ -76,7 +76,7 @@ class App extends Component {
 
   onSubmit = () =>{
     this.setState ({imageUrl : this.state.input})
-    fetch ("https://git.heroku.com/ancient-forest-08678.git/imageurl", {
+    fetch ("https://ancient-forest-08678.herokuapp.com/imageurl", {
           method : 'post',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
