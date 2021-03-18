@@ -1,5 +1,5 @@
 import './App.css';
-import react, {Component} from 'react';
+import React, { useState } from 'react';
 import Navigation from './components/Navigation/Navigation.js';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm';
@@ -9,6 +9,9 @@ import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import Particles from 'react-particles-js';
 
+/*
+  Particles API used for the background
+*/
 const particlesOptions = {
 particles: {                 
   number: {
@@ -21,133 +24,123 @@ particles: {
   }
 }                
 
-const initialState = {
-      input: '',
-      imageUrl: '',
-      box:{},
-      route: 'signin',//where we are aon the page
-      isSignedIn: false,
-      user:{
-        id: '',
-        name: '',
-        email: '',
-        password: '',
-        entries: '',
-        joined: '',
-      }
-    }
-class App extends Component {
+const App = () => {
 
-  constructor(){
-    super();
-    this.state = initialState;
-  }
+  const [input, setInput] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [box, setBox] = useState([{}]);
+  const [route, setRoute] = useState('signin');
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [user, setUser] = useState({
+                                    id: '',
+                                    name: '',
+                                    email: '',
+                                    password: '',
+                                    entries: '',
+                                    joined: '',
+                                  });
 
+  const setInitialState = () =>{
+  setInput('');
+  setImageUrl('');
+  setBox([{}]);
+  setRoute('signin');
+  setIsSignedIn(false);
+  setUser({
+            id: '',
+            name: '',
+            email: '',
+            password: '',
+            entries: '',
+            joined: '',
+          });
+}
 /*
-  componentDidMount(){
-    fetch ('http://localhost:3000/')
-    .then(response=> response.json())
-    .then(data => console.log(data));
-  }
-
-  //google secures access from other computers, by using Access-Control-Allow-Origin. this is first set to no cors
-  //to enable access from other computers, we have to use npm cors
+  Function that calculates face location based on coordinates given by CLARIFAI API
+  Returns an array with all the coordinates
 */
-
-  calculateFaceLocation = (data) =>{
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  const calculateFaceLocation = (data) =>{
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return{
-      leftCol: (clarifaiFace.left_col) * width,//197
-      topRow: (clarifaiFace.top_row) * height,//59
-      rightCol: width - (clarifaiFace.right_col * width),//195.7
-      bottomRow: height - (clarifaiFace.bottom_row * height),//274
-    }
-  }
-  displayFaceBox = (box) =>{
-    this.setState ({box: box});
+    const faceCoordinates = data.outputs[0].data.regions;
+    let facesDetected = [];
+
+    faceCoordinates.forEach(face=>{
+      const clarifaiFace = face.region_info.bounding_box
+      const coordinates = {
+        leftCol: (clarifaiFace.left_col) * width,
+        topRow: (clarifaiFace.top_row) * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      }
+      facesDetected.push(coordinates);
+    })
+
+    return facesDetected;
   }
 
-  onInputChange = (event) =>{
-    this.setState({input: event.target.value})
-  }
-
-  onSubmit = () =>{
-    this.setState ({imageUrl : this.state.input})
+  /*
+    when the user submits the image link, this function send a request to the server.
+    the server handles the CLARIFAI API call, to detect all the faces.
+    The server send a response with all the detected faces, and calculateFaceLocation does the rest.
+    this response brings us in another fetch to the backend, to update the entries
+  */
+  const onSubmit = () =>{
+    setImageUrl(input.target.value);
     fetch ("https://ancient-forest-08678.herokuapp.com/imageurl", {
           method : 'post',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            input: this.state.input//send the id to the server. it will update that user's count
+            input: input.target.value
             })
           })
-          .then (response => response.json())
+    .then (response => response.json())
     .then(response=>{
         if (response){
           fetch ("https://ancient-forest-08678.herokuapp.com/image", {
           method : 'put',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            id: this.state.user.id//send the id to the server. it will update that user's count
+            id: user.id//send the id to the server. it will update that user's count
             })
           })
           .then(response => response.json())
           .then(count =>{
-              this.setState(Object.assign(this.state.user, {entries: count}));//use object assign (the object to update, {the element to add})
+              setUser({...user, entries: count});
           }).catch(console.log);
-          this.displayFaceBox(this.calculateFaceLocation(response));
+
+          setBox(calculateFaceLocation(response));
         }
       })
     .catch(e=>console.log('error',e))
   }
 
-  onRouteChange = (route) =>{
-    if (route === 'signin'){
-      this.setState(initialState);
-    }else if (route === 'home'){
-      this.setState({isSignedIn: true})
-    }
-    this.setState({route: route});
-  }
-
-  loadUser = (user) =>{
-    this.setState({user:{
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        entries: user.entries,
-        joined: user.joined,
-    }})
-  }
-  render(){
     let section;
 
-    if (this.state.route === 'signin'){
-          section = (<Signin loadUser={this.loadUser}onRouteChange={this.onRouteChange}/>);
-      }else if(this.state.route === 'register'){
-          section = (<Register loadUser = {this.loadUser} onRouteChange = {this.onRouteChange}/>);
+    if (route === 'signin'){
+          section = (<Signin loadUser={(user)=> setUser(user)} onRouteChange={(route) => setRoute(route)} isSignedIn = {(value)=> setIsSignedIn(value)}/>);
+      }else if(route === 'register'){
+          section = (<Register loadUser = {(user)=> setUser(user)} onRouteChange = {(route) => setRoute(route)} isSignedIn = {(value)=> setIsSignedIn(value)}/>);
       }else{
           section = (
           <div>     
             <Logo /> 
-            <Rank userName = {this.state.user.name} entries = {this.state.user.entries}/>
-            <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
-            <FaceRecognition box = {this.state.box} imageUrl={this.state.imageUrl}/>
+            <Rank userName = {user.name} entries = {user.entries}/>
+            <ImageLinkForm onInputChange={(link) => setInput(link)} onSubmit={()=>onSubmit()}/>
+            <FaceRecognition boxes = {box} imageUrl={imageUrl}/>
           </div>
         )
       }
 
     return (
       <div className="App">
-        <Navigation isSignedIn={this.state.isSignedIn} onRouteChange = {this.onRouteChange} />
+        <Navigation isSignedIn={isSignedIn} onRouteChange = {(route) => setRoute(route)} setInitialState = {()=>setInitialState()}/>
         <Particles params={particlesOptions} className='particles'/>
         {section}
       </div>
     );
-  }  
+    
 }
 
 export default App;

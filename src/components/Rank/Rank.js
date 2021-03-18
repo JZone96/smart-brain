@@ -4,10 +4,10 @@ import react from 'react';
 	return (
 		 <div>
 		 	<div className='white f3'>
-		 		{userName  + ', Your current rank is... '}
+		 		{userName  + ', Your current entry count is... '}
 		 	</div>
 		 	<div className='white f1'>
-		 		{'#1 '+ entries}
+		 		{entries}
 		 	</div>
 		 </div>
 	);
