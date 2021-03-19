@@ -22,10 +22,9 @@ particles: {
       }
     }
   }
-}                
+}               
 
 const App = () => {
-
   const [input, setInput] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [box, setBox] = useState([{}]);
@@ -39,6 +38,29 @@ const App = () => {
                                     entries: '',
                                     joined: '',
                                   });
+
+window.onload = () =>{
+
+      if (localStorage.userId){
+        setIsSignedIn(true);
+        setRoute('Home');
+        fetch (`https://ancient-forest-08678.herokuapp.com/profile/${localStorage.userId}`)
+        .then(response => response.json())
+        .then(user=> {
+          setUser({
+            ...user, 
+            email: user.email,
+            entries: user.entries,
+            id: user.id,
+            joined: user.joined,
+            name: user.name
+          })
+        }).catch(err => console.log('Broken Server :('))
+
+        setInput('');
+        setImageUrl('');
+      }
+}
 
   const setInitialState = () =>{
   setInput('');
@@ -87,6 +109,9 @@ const App = () => {
     this response brings us in another fetch to the backend, to update the entries
   */
   const onSubmit = () =>{
+    if (input.target === undefined){
+      
+    }
     setImageUrl(input.target.value);
     fetch ("https://ancient-forest-08678.herokuapp.com/imageurl", {
           method : 'post',
@@ -112,8 +137,7 @@ const App = () => {
 
           setBox(calculateFaceLocation(response));
         }
-      })
-    .catch(e=>console.log('error',e))
+      }).catch(e=>console.log('error',e))
   }
 
     let section;

@@ -19,6 +19,7 @@ import React, {useState} from 'react';
 		.then(response=>response.json())
 		.then(user=>{
 			if (user.id){
+				localStorage.setItem('userId', user.id);
 				props.loadUser(user);
 				props.onRouteChange ('home');
 				props.isSignedIn(true);

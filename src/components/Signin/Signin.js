@@ -17,15 +17,10 @@ const Signin = (props) =>{
 		.then(response=>response.json())
 		.then(user=>{
 			if (user.id){
-				/*console.log(user)
-				localStorage.setItem('email', user.email);
-				localStorage.setItem('entries', user.entries);
-				localStorage.setItem('id', user.id);
-				localStorage.setItem('joined', user.joined);
-				localStorage.setItem('name', user.name);*/
+				localStorage.setItem('userId', user.id);
 				props.loadUser(user);
-				props.onRouteChange ('home')
-				props.isSignedIn(true)
+				props.onRouteChange ('home');
+				props.isSignedIn(true);
 			}
 		})
 		
