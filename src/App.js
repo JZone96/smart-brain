@@ -40,10 +40,7 @@ const App = () => {
                                   });
 
 window.onload = () =>{
-
       if (localStorage.userId){
-        setIsSignedIn(true);
-        setRoute('Home');
         fetch (`https://ancient-forest-08678.herokuapp.com/profile/${localStorage.userId}`)
         .then(response => response.json())
         .then(user=> {
@@ -56,7 +53,8 @@ window.onload = () =>{
             name: user.name
           })
         }).catch(err => console.log('Broken Server :('))
-
+        setIsSignedIn(true);
+        setRoute('Home');
         setInput('');
         setImageUrl('');
       }
