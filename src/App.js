@@ -7,7 +7,9 @@ import Rank from './components/Rank/Rank';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
+import ModifyUser from './components/Modify/Modify';
 import Particles from 'react-particles-js';
+
 
 /*
   Particles API used for the background
@@ -25,10 +27,11 @@ particles: {
 }               
 
 const App = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [input, setInput] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [box, setBox] = useState([{}]);
-  const [route, setRoute] = useState('signin');
+  const [route, setRoute] = useState('loading');
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState({
                                     id: '',
@@ -38,9 +41,11 @@ const App = () => {
                                     entries: '',
                                     joined: '',
                                   });
+  const [text, setText] = useState("");
 
 window.onload = () =>{
-      if (localStorage.userId){
+      if (localStorage.userId && !isLoaded){
+        setRoute('loading');
         fetch (`https://ancient-forest-08678.herokuapp.com/profile/${localStorage.userId}`)
         .then(response => response.json())
         .then(user=> {
@@ -51,12 +56,13 @@ window.onload = () =>{
             id: user.id,
             joined: user.joined,
             name: user.name
-          })
-        }).catch(err => console.log('Broken Server :('))
-        setIsSignedIn(true);
-        setRoute('Home');
-        setInput('');
-        setImageUrl('');
+          });
+          setIsLoaded(true);
+          setIsSignedIn(true);
+          setRoute('home');
+        }).catch(err => console.log('Broken Server :(')) 
+      }else{
+          setRoute('signin')
       }
 }
 
@@ -107,49 +113,69 @@ window.onload = () =>{
     this response brings us in another fetch to the backend, to update the entries
   */
   const onSubmit = () =>{
-    if (input.target === undefined){
-      
-    }
-    setImageUrl(input.target.value);
-    fetch ("https://ancient-forest-08678.herokuapp.com/imageurl", {
-          method : 'post',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            input: input.target.value
-            })
-          })
-    .then (response => response.json())
-    .then(response=>{
-        if (response){
-          fetch ("https://ancient-forest-08678.herokuapp.com/image", {
-          method : 'put',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            id: user.id//send the id to the server. it will update that user's count
-            })
-          })
-          .then(response => response.json())
-          .then(count =>{
-              setUser({...user, entries: count});
-          }).catch(console.log);
 
-          setBox(calculateFaceLocation(response));
-        }
-      }).catch(e=>console.log('error',e))
+    if (!input){
+      setText("No Link provided")
+      
+    }else{
+      setImageUrl(input.target.value);
+      fetch ("https://ancient-forest-08678.herokuapp.com/imageurl", {
+              method : 'post',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                input: input.target.value
+                })
+              })
+        .then (response => response.json())
+        .then(response=>{
+            if (response === 'unable to call API'){
+                setText("Image Not Found :(")
+            }else{
+              fetch ("https://ancient-forest-08678.herokuapp.com/image", {
+                method : 'put',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  id: user.id//send the id to the server. it will update that user's count
+                  })
+                })
+                .then(response => response.json())
+                .then(count =>{
+                    setUser({...user, entries: count});
+                }).catch(console.log);
+
+                setBox(calculateFaceLocation(response));
+                setText("Face(s) detected")
+            }
+          }).catch(e=>console.log('error',e))
+    }
+    
   }
 
     let section;
 
-    if (route === 'signin'){
+    if (route === 'signin' ){
           section = (<Signin loadUser={(user)=> setUser(user)} onRouteChange={(route) => setRoute(route)} isSignedIn = {(value)=> setIsSignedIn(value)}/>);
-      }else if(route === 'register'){
+
+      }else if(route === 'register' ){
           section = (<Register loadUser = {(user)=> setUser(user)} onRouteChange = {(route) => setRoute(route)} isSignedIn = {(value)=> setIsSignedIn(value)}/>);
-      }else{
+      }else if (route === 'modify'){
           section = (
-          <div>     
-            <Logo /> 
+            <div className = 'tc'>
+              <Logo/>
+              <ModifyUser user = {user}/>
+            </div> 
+            )
+      }else if (route === 'loading' ){
+        
+        return(
+            <Particles params={particlesOptions} className='particles'/>
+          );
+      }else{
+        section = (
+          <div className='tc'>     
+            <Logo/> 
             <Rank userName = {user.name} entries = {user.entries}/>
-            <ImageLinkForm onInputChange={(link) => setInput(link)} onSubmit={()=>onSubmit()}/>
+            <ImageLinkForm onInputChange={(link) => setInput(link)} onSubmit={()=>onSubmit()} text = {text}/>
             <FaceRecognition boxes = {box} imageUrl={imageUrl}/>
           </div>
         )
@@ -157,7 +183,10 @@ window.onload = () =>{
 
     return (
       <div className="App">
-        <Navigation isSignedIn={isSignedIn} onRouteChange = {(route) => setRoute(route)} setInitialState = {()=>setInitialState()}/>
+        <Navigation isSignedIn={isSignedIn} 
+                    onRouteChange = {(route) => setRoute(route)} 
+                    setInitialState = {()=>setInitialState()}
+                    route = {route}/>
         <Particles params={particlesOptions} className='particles'/>
         {section}
       </div>

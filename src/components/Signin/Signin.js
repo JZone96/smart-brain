@@ -11,7 +11,7 @@ const Signin = (props) =>{
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({
 				email: signInEmail,
-				password: signInPassword,
+				password: signInPassword
 			})
 		})
 		.then(response=>response.json())
