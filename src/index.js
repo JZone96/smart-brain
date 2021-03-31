@@ -7,7 +7,23 @@ import 'tachyons';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+
+    <div className="flex flex-column">
+    	<div className="w-100">
+    		<App />
+    	</div>
+    	<div className="w-100 tc pv7 relative">
+	    	<footer>
+		            <div>
+		              {"2021 - Made by Jason Liberti"}
+
+		            </div>
+
+		    </footer>
+    	</div>
+	    
+
+    </div>
   </React.StrictMode>,
   document.getElementById('root')
 );

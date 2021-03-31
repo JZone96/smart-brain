@@ -25,7 +25,7 @@ particles: {
     }
   }
 }               
-
+/* Declaring all the states, and setInitialState function*/
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [input, setInput] = useState('');
@@ -43,6 +43,23 @@ const App = () => {
                                   });
   const [text, setText] = useState("");
   let numberOfFaces;
+
+  const setInitialState = () =>{
+  setInput('');
+  setImageUrl('');
+  setBox([{}]);
+  setRoute('signin');
+  setIsSignedIn(false);
+  setUser({
+            id: '',
+            name: '',
+            email: '',
+            password: '',
+            entries: '',
+            joined: '',
+          });
+}
+/*localStorage variable to store users id*/
 window.onload = () =>{
       if (localStorage.userId && !isLoaded){
         setRoute('loading');
@@ -66,24 +83,10 @@ window.onload = () =>{
       }
 }
 
-  const setInitialState = () =>{
-  setInput('');
-  setImageUrl('');
-  setBox([{}]);
-  setRoute('signin');
-  setIsSignedIn(false);
-  setUser({
-            id: '',
-            name: '',
-            email: '',
-            password: '',
-            entries: '',
-            joined: '',
-          });
-}
+
 /*
   Function that calculates face location based on coordinates given by CLARIFAI API
-  Returns an array with all the coordinates
+  If there are faces in the image, returns an array with all the coordinates otherwise return false
 */
   const calculateFaceLocation = (data) =>{
     if (data.outputs[0].data.regions){
@@ -161,7 +164,10 @@ window.onload = () =>{
     }
     
   }
-
+/*
+  JSX SECTION
+  render is based on the route state
+*/
     let section;
 
     if (route === 'signin' ){
@@ -193,13 +199,17 @@ window.onload = () =>{
       }
 
     return (
-      <div className="App">
-        <Navigation isSignedIn={isSignedIn} 
+      <div className="App flex flex-column">
+        <div className="w-100">
+          <Navigation isSignedIn={isSignedIn} 
                     onRouteChange = {(route) => setRoute(route)} 
                     setInitialState = {()=>setInitialState()}
                     route = {route}/>
-        <Particles params={particlesOptions} className='particles'/>
-        {section}
+          <Particles params={particlesOptions} className='particles'/>
+        </div>
+        <div className = "w-100">
+          {section}
+        </div>
       </div>
     );
     
