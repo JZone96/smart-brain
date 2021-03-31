@@ -1,11 +1,12 @@
 import react from 'react';
+
 import './ImageLinkForm.css';
 
  const ImageLinkForm = ({onInputChange, onSubmit,text}) =>{//DESTRUCTURING
 	return (
 		 <div>
 		 	<p className='f3'>
-		 		{'This thing will detect faces in your pictures. Try it'}
+		 		{'This tool will detect faces in your pictures. Try it'}
 		 	</p>
 		 	<div className='form center pa4 br3 shadow-5'>{/*Created center css class, adding flex, justifying center*/}
 		 		<div className='flex flex-column'>
@@ -17,7 +18,7 @@ import './ImageLinkForm.css';
 					 			   className='f4 pa2 w-100 center' 
 					 			   onChange={link => link? onInputChange(link) : null}
 					 			   placeholder='Insert image link here...'
-					 			   style={{ width: "400px" }}/>
+					 			   style={{ width: "15em" }}/>
 					 		
 					      </div>
 					    </div>
@@ -25,7 +26,7 @@ import './ImageLinkForm.css';
 					      <div>
 					      	<button className='w-100 grow f4 link ph3 pv2 dib white bg-dark-blue' 
 					 		        onClick={onSubmit}
-					 		        style={{ width: "150px" }}>Detect</button>
+					 		        style={{ width: "5em" }}>Detect</button>
 					      </div>
 					    </div>
 					  </div>

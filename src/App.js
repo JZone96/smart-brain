@@ -42,7 +42,7 @@ const App = () => {
                                     joined: '',
                                   });
   const [text, setText] = useState("");
-
+  let numberOfFaces;
 window.onload = () =>{
       if (localStorage.userId && !isLoaded){
         setRoute('loading');
@@ -86,24 +86,35 @@ window.onload = () =>{
   Returns an array with all the coordinates
 */
   const calculateFaceLocation = (data) =>{
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
-    const faceCoordinates = data.outputs[0].data.regions;
-    let facesDetected = [];
-
-    faceCoordinates.forEach(face=>{
-      const clarifaiFace = face.region_info.bounding_box
-      const coordinates = {
-        leftCol: (clarifaiFace.left_col) * width,
-        topRow: (clarifaiFace.top_row) * height,
-        rightCol: width - (clarifaiFace.right_col * width),
-        bottomRow: height - (clarifaiFace.bottom_row * height)
+    if (data.outputs[0].data.regions){
+      numberOfFaces = data.outputs[0].data.regions.length;
+      if (numberOfFaces===1){
+          setText(`I've detected ${numberOfFaces} face`);
+      }else{
+          setText(`I've detected ${numberOfFaces} faces`);
       }
-      facesDetected.push(coordinates);
-    })
 
-    return facesDetected;
+      const image = document.getElementById('inputimage');
+      const width = Number(image.width);
+      const height = Number(image.height);
+      const faceCoordinates = data.outputs[0].data.regions;
+      let facesDetected = [];
+
+      faceCoordinates.forEach(face=>{
+        const clarifaiFace = face.region_info.bounding_box
+        const coordinates = {
+          leftCol: (clarifaiFace.left_col) * width,
+          topRow: (clarifaiFace.top_row) * height,
+          rightCol: width - (clarifaiFace.right_col * width),
+          bottomRow: height - (clarifaiFace.bottom_row * height)
+        }
+        facesDetected.push(coordinates);
+      })
+      return facesDetected;
+    }else{
+      setText(`No faces detected :(`)
+      return false;
+    }
   }
 
   /*
@@ -144,7 +155,7 @@ window.onload = () =>{
                 }).catch(console.log);
 
                 setBox(calculateFaceLocation(response));
-                setText("Face(s) detected")
+                
             }
           }).catch(e=>console.log('error',e))
     }
