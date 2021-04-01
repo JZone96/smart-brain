@@ -207,8 +207,15 @@ window.onload = () =>{
                     route = {route}/>
           <Particles params={particlesOptions} className='particles'/>
         </div>
-        <div className = "w-100">
           {section}
+          <div className="w-100 tc pv7 relative">
+          <footer>
+                  <div>
+                    {"2021 - Made by Jason Liberti"}
+
+                  </div>
+
+          </footer>
         </div>
       </div>
     );
